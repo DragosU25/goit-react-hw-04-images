@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ImageGalleryItem from 'components/ImageGallleryItem';
-
 import styles from './ImageGallery.module.css';
 
 function ImageGallery({ images, handleClick }) {
@@ -21,7 +20,7 @@ function ImageGallery({ images, handleClick }) {
 ImageGallery.propTypes = {
   images: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired, // Assuming 'id' is a number
+      id: PropTypes.number.isRequired,
       largeImageURL: PropTypes.string.isRequired,
       // other image properties
     })
