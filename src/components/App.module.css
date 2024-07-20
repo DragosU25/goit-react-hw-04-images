@@ -1,0 +1,17 @@
+/* App.module.css */
+.app {
+  font-family: 'Arial', sans-serif;
+  background-color: #fff;
+  color: #333;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.error {
+  color: red;
+  text-align: center;
+  margin-top: 20px;
+}

@@ -1,0 +1,18 @@
+/* Button.module.css */
+.button {
+  background-color: #61dafb;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  color: #282c34;
+  margin: 20px auto;
+  display: block;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.button:hover {
+  background-color: #21a1f1;
+}
