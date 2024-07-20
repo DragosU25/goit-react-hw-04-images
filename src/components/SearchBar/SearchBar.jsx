@@ -1,41 +1,38 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import styles from './SearchBar.module.css';
 import { FaSearch } from 'react-icons/fa';
 
-export default class SearchBar extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { query: '' };
-  }
+export default function SearchBar({ onSubmit }) {
+  const [query, setQuery] = useState('');
 
-  handleChange = event => {
-    this.setState({ query: event.target.value });
+  const handleChange = event => {
+    setQuery(event.target.value);
   };
 
-  handleSubmit = event => {
+  const handleSubmit = event => {
     event.preventDefault();
-    this.props.onSubmit(this.state.query);
-    this.setState({ query: '' });
+    if (query.trim()) {
+      onSubmit(query);
+      setQuery('');
+    }
   };
 
-  render() {
-    return (
-      <header className={styles.searchbar}>
-        <form className={styles.form} onSubmit={this.handleSubmit}>
-          <input
-            className={styles.input}
-            type="text"
-            autoComplete="off"
-            autoFocus=""
-            placeholder="Search images and photos"
-            value={this.state.query}
-            onChange={this.handleChange}
-          />
-          <button type="submit" className={styles.button}>
-            <FaSearch className={styles.icon} />
-          </button>
-        </form>
-      </header>
-    );
-  }
+  return (
+    <header className={styles.searchbar}>
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <input
+          className={styles.input}
+          type="text"
+          autoComplete="off"
+          autoFocus=""
+          placeholder="Search images and photos"
+          value={query}
+          onChange={handleChange}
+        />
+        <button type="submit" className={styles.button}>
+          <FaSearch className={styles.icon} />
+        </button>
+      </form>
+    </header>
+  );
 }

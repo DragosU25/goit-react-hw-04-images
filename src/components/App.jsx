@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SearchBar from './SearchBar';
 import ImageGallery from './ImageGallery';
@@ -9,103 +9,80 @@ import Modal from './Modal';
 const API_KEY = '43921619-d69945085d06baa690e6f0201';
 const INITIAL_PER_PAGE = 12;
 
-export default class App extends Component {
-  constructor(props) {
-    super(props);
+export default function App() {
+  const [images, setImages] = useState([]);
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [perPage, setPerPage] = useState(INITIAL_PER_PAGE);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
-    this.state = {
-      images: [],
-      query: '',
-      loading: false,
-      error: null,
-      perPage: INITIAL_PER_PAGE,
-      showModal: false,
-      selectedImage: null,
-    };
-    this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
-    this.loadMoreImages = this.loadMoreImages.bind(this);
-    this.handleModalClose = this.handleModalClose.bind(this);
-  }
+  useEffect(() => {
+    if (query) {
+      handleSearchSubmit(query);
+    }
+  }, [query]);
 
-  async handleSearchSubmit(query) {
+  const handleSearchSubmit = async searchQuery => {
+    setQuery(searchQuery);
+    setLoading(true);
     try {
-      this.setState({ loading: true });
       const response = await axios.get(
-        `https://pixabay.com/api/?key=${API_KEY}&q=${query}&image_type=photo&orientation=horizontal&per_page=${this.state.perPage}`
+        `https://pixabay.com/api/?key=${API_KEY}&q=${searchQuery}&image_type=photo&orientation=horizontal&per_page=${perPage}`
       );
-
-      this.setState({
-        images: response.data.hits,
-        query,
-        loading: false,
-      });
+      setImages(response.data.hits);
+      setLoading(false);
     } catch (error) {
       console.error('Error searching images:', error);
-      this.setState({ error: 'Error searching images' });
-    } finally {
-      this.setState({ loading: false });
+      setError('Error searching images');
+      setLoading(false);
     }
-  }
+  };
 
-  async loadMoreImages(event) {
+  const loadMoreImages = async event => {
     event.preventDefault();
+    setLoading(true);
     try {
-      this.setState({ loading: true });
-      const { images, perPage, query } = this.state;
       const nextPage = Math.ceil(images.length / perPage) + 1;
-
       const response = await axios.get(
         `https://pixabay.com/api/?key=${API_KEY}&q=${query}&image_type=photo&orientation=horizontal&per_page=${perPage}&page=${nextPage}`
       );
-
-      this.setState(prevState => ({
-        images: [...prevState.images, ...response.data.hits],
-        loading: false,
-      }));
+      setImages(prevImages => [...prevImages, ...response.data.hits]);
+      setLoading(false);
     } catch (error) {
       console.error('Error loading more images:', error);
-      this.setState({ loading: false, error: 'Error loading more images' });
+      setError('Error loading more images');
+      setLoading(false);
     }
-  }
-
-  handleModal = imageUrl => {
-    this.setState({
-      showModal: true,
-      selectedImage: imageUrl,
-    });
   };
 
-  handleModalClose() {
-    this.setState({
-      showModal: false,
-      selectedImage: null,
-    });
-  }
+  const handleModal = imageUrl => {
+    setShowModal(true);
+    setSelectedImage(imageUrl);
+  };
 
-  render() {
-    const { images, loading, error, showModal, selectedImage } = this.state;
+  const handleModalClose = () => {
+    setShowModal(false);
+    setSelectedImage(null);
+  };
 
-    return (
-      <div>
-        <SearchBar onSubmit={this.handleSearchSubmit} />
-        {loading ? (
-          <Loader />
-        ) : error ? (
-          <p>{error}</p>
-        ) : (
-          <ImageGallery images={images} handleClick={this.handleModal} />
-        )}
-        {!loading && !error && images.length > 0 && (
-          <Button
-            type={'button'}
-            onClick={this.loadMoreImages}
-            text={'Load more'}
-          />
-        )}
-        {showModal && (
-          <Modal imageUrl={selectedImage} onClose={this.handleModalClose} />
-        )}
-      </div>
-    );
-  }
+  return (
+    <div>
+      <SearchBar onSubmit={handleSearchSubmit} />
+      {loading ? (
+        <Loader />
+      ) : error ? (
+        <p>{error}</p>
+      ) : (
+        <ImageGallery images={images} handleClick={handleModal} />
+      )}
+      {!loading && !error && images.length > 0 && (
+        <Button type={'button'} onClick={loadMoreImages} text={'Load more'} />
+      )}
+      {showModal && (
+        <Modal imageUrl={selectedImage} onClose={handleModalClose} />
+      )}
+    </div>
+  );
 }
